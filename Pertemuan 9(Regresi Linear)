@@ -1,0 +1,186 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Fungsi regresi linear sederhana
+def simple_linear_regression(x, y, x_pred=None):
+    n = len(x)
+    sum_x = sum(x)
+    sum_y = sum(y)
+    sum_xy = sum(xi*yi for xi, yi in zip(x, y))
+    sum_x2 = sum(xi**2 for xi in x)
+    
+    # Hitung slope (b) dan intercept (a)
+    b = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x**2)
+    a = (sum_y - b * sum_x) / n
+    
+    # Persamaan regresi
+    equation = f'y = {a:.2f} + {b:.2f}x' if a != 0 else f'y = {b:.2f}x'
+    
+    # Prediksi jika ada
+    y_pred = a + b * x_pred if x_pred is not None else None
+    
+    return a, b, equation, y_pred
+
+# Fungsi regresi linear berganda
+def multiple_linear_regression(X1, X2, Y, x1_pred=None, x2_pred=None):
+    n = len(X1)
+    # Bentuk matriks X dan Y
+    X = np.column_stack((np.ones(n), X1, X2))
+    Y = np.array(Y)
+    
+    # Hitung koefisien (a, b1, b2)
+    beta = np.linalg.inv(X.T @ X) @ X.T @ Y
+    a, b1, b2 = beta
+    
+    # Persamaan regresi
+    equation = f'Y = {a:.2f} + {b1:.2f}X1 + {b2:.2f}X2'
+    
+    # Prediksi jika ada
+    y_pred = a + b1*x1_pred + b2*x2_pred if (x1_pred is not None and x2_pred is not None) else None
+    
+    return a, b1, b2, equation, y_pred
+
+# ================================
+# SOAL 1: Pendapatan vs. Pengeluaran
+# ================================
+x1 = [10, 20, 30, 40, 50]
+y1 = [200, 400, 600, 800, 1000]
+a1, b1, eq1, pred1 = simple_linear_regression(x1, y1, 35)
+
+# Visualisasi
+plt.figure(figsize=(10, 5))
+plt.scatter(x1, y1, color='blue', s=100, label='Data Asli')
+plt.plot(x1, [a1 + b1*xi for xi in x1], 'r-', label=eq1)
+plt.scatter(35, pred1, color='green', s=200, marker='*', label=f'Prediksi: {pred1:.0f}')
+plt.title('SOAL 1: Regresi Pendapatan vs Pengeluaran')
+plt.xlabel('Pengeluaran (x)')
+plt.ylabel('Pendapatan (y)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# ================================
+# SOAL 2: Nilai vs. Jam Belajar
+# ================================
+hours = [1, 2, 3, 4]
+scores = [60, 65, 70, 75]
+
+# Hitung rata-rata kenaikan
+increase = np.diff(scores).mean()
+
+# Visualisasi
+plt.figure(figsize=(10, 5))
+plt.plot(hours, scores, 'bo-', markersize=8)
+for i, (h, s) in enumerate(zip(hours, scores)):
+    plt.text(h, s+0.5, f'{s}', ha='center', va='bottom', fontsize=12)
+    
+plt.title('SOAL 2: Hubungan Jam Belajar dan Nilai')
+plt.xlabel('Jam Belajar')
+plt.ylabel('Nilai')
+plt.xticks(hours)
+plt.grid(True)
+plt.annotate(f'Rata-rata kenaikan: {increase} poin per jam', 
+             xy=(0.5, 0.1), xycoords='axes fraction',
+             fontsize=12, ha='center')
+plt.show()
+
+# ================================
+# SOAL 3: Harga Mobil vs. Usia
+# ================================
+# Menggunakan summary statistics dari soal
+n3 = 5
+sum_x3 = 25
+sum_y3 = 450
+sum_x2_3 = 165
+sum_xy3 = 1650
+
+# Hitung koefisien
+b3 = (n3*sum_xy3 - sum_x3*sum_y3) / (n3*sum_x2_3 - sum_x3**2)
+a3 = (sum_y3 - b3*sum_x3) / n3
+pred3 = a3 + b3*4
+
+# Generate data untuk plot (diasumsikan)
+x3 = np.linspace(2, 6, 5)
+y3 = a3 + b3*x3
+
+# Visualisasi
+plt.figure(figsize=(10, 5))
+plt.plot(x3, y3, 'r-', label=f'y = {a3:.0f} + {b3:.0f}x')
+plt.scatter(4, pred3, color='green', s=200, marker='*', label=f'Prediksi: {pred3:.0f}')
+plt.title('SOAL 3: Regresi Harga Mobil vs Usia')
+plt.xlabel('Usia (tahun)')
+plt.ylabel('Harga (juta)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# ================================
+# SOAL 4: Pendapatan vs. Produk
+# ================================
+x4 = [10, 20, 30, 40]
+y4 = [50000, 100000, 150000, 200000]
+a4, b4, eq4, pred4 = simple_linear_regression(x4, y4, 18)
+
+# Visualisasi
+plt.figure(figsize=(10, 5))
+plt.scatter(x4, y4, color='blue', s=100, label='Data Asli')
+plt.plot(x4, [a4 + b4*xi for xi in x4], 'r-', label=eq4)
+plt.scatter(18, pred4, color='green', s=200, marker='*', label=f'Prediksi: {pred4:.0f}')
+plt.title('SOAL 4: Regresi Pendapatan vs Jumlah Produk')
+plt.xlabel('Jumlah Produk (x)')
+plt.ylabel('Pendapatan (y)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# ================================
+# SOAL 5: Pendapatan vs. Pengunjung & Menu
+# ================================
+X1 = [50, 60, 70, 80]
+X2 = [2, 3, 4, 5]
+Y = [400, 480, 560, 640]
+a5, b1, b2, eq5, pred5 = multiple_linear_regression(X1, X2, Y, 75, 4)
+
+# Visualisasi 3D
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot data asli
+ax.scatter(X1, X2, Y, c='blue', s=100, label='Data Asli')
+
+# Plot prediksi
+ax.scatter(75, 4, pred5, c='red', s=200, marker='*', label=f'Prediksi: {pred5:.0f}')
+
+# Plot regression plane
+x1_range = np.linspace(50, 80, 10)
+x2_range = np.linspace(2, 5, 10)
+X1g, X2g = np.meshgrid(x1_range, x2_range)
+Yg = a5 + b1*X1g + b2*X2g
+ax.plot_surface(X1g, X2g, Yg, alpha=0.5, color='yellow')
+
+ax.set_title('SOAL 5: Regresi Berganda Pendapatan vs Pengunjung & Menu')
+ax.set_xlabel('Pengunjung (X1)')
+ax.set_ylabel('Menu (X2)')
+ax.set_zlabel('Pendapatan (Y)')
+ax.legend()
+plt.show()
+
+# Tampilkan hasil
+print("="*50)
+print("HASIL PERHITUNGAN REGRESI LINEAR")
+print("="*50)
+print(f"SOAL 1: {eq1}")
+print(f"Prediksi untuk x=35: y = {pred1:.0f}\n")
+
+print(f"SOAL 2: Rata-rata kenaikan nilai: {increase} poin per jam\n")
+
+print(f"SOAL 3: {eq5}")
+print(f"Prediksi untuk usia 4 tahun: {pred3:.0f} juta\n")
+
+print(f"SOAL 4: {eq4}")
+print(f"Prediksi untuk 18 produk: {pred4:.0f}\n")
+
+print(f"SOAL 5: {eq5}")
+print(f"Prediksi untuk 75 pengunjung dan 4 menu: {pred5:.0f}")
+print("="*50)
